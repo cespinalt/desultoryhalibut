@@ -26788,9 +26788,11 @@
 	    _this.state = {
 	      currentCompany: null,
 	      companyGoogleTrendsData: null,
-	      isSummary: true
+	      isSummary: true,
+	      twitterData: null
 	    };
 	    _this.selectCompany = _this.selectCompany.bind(_this);
+	    _this.fetchTweets = _this.fetchTweets.bind(_this);
 	    return _this;
 	  }
 
@@ -26799,27 +26801,45 @@
 	    value: function selectCompany(company) {
 	      var _this2 = this;
 
-	      this.setState({ currentCompany: company, isSummary: false });
-	      alert('I selected this company ' + company);
+	      this.setState({ currentCompany: company.toLowerCase(), isSummary: false });
 
-	      // fetch company specific Google Trends data
+	      // fetch company specific Google Trends data directly from API
 	      fetch('api/googletrends/' + company, { method: 'GET' }).then(function (res) {
 	        return res.json();
 	      }).then(function (data) {
-	        console.log('Company Google Trends Data ', data);
 	        _this2.setState({ companyGoogleTrendsData: data });
 	      }).catch(function (err) {
 	        console.log(err);
 	      });
 	    }
 	  }, {
+	    key: 'fetchTweets',
+	    value: function fetchTweets() {
+	      var _this3 = this;
+
+	      var self = this;
+	      fetch('api/twitter', { method: 'GET' }).then(function (res) {
+	        return res.json();
+	      }).then(function (data) {
+	        console.log('SETTINGSTATE', data);
+	        _this3.setState({ twitterData: data }).bind(self);
+	      }).catch(function (err) {
+	        console.log(err);
+	      });
+	    }
+	  }, {
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      setInterval(this.fetchTweets, 5000);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var partial = void 0;
+	      var partial;
 	      if (this.state.isSummary) {
-	        partial = _react2.default.createElement(_summary2.default, null);
+	        partial = _react2.default.createElement(_summary2.default, { twitterData: this.state.twitterData });
 	      } else {
-	        partial = _react2.default.createElement(_company2.default, null);
+	        partial = _react2.default.createElement(_company2.default, { companyGoogleTrendsData: this.state.companyGoogleTrendsData, currentCompany: this.state.currentCompany, twitterData: this.state.twitterData });
 	      }
 
 	      return _react2.default.createElement(
@@ -26869,9 +26889,21 @@
 
 	var _sentiment2 = _interopRequireDefault(_sentiment);
 
+	var _news = __webpack_require__(243);
+
+	var _news2 = _interopRequireDefault(_news);
+
 	var _twitter = __webpack_require__(244);
 
 	var _twitter2 = _interopRequireDefault(_twitter);
+
+	var _twitterLiveSummary = __webpack_require__(245);
+
+	var _twitterLiveSummary2 = _interopRequireDefault(_twitterLiveSummary);
+
+	var _twitterLive = __webpack_require__(246);
+
+	var _twitterLive2 = _interopRequireDefault(_twitterLive);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26892,50 +26924,70 @@
 	    _this.state = {
 	      googleTrendsData: null,
 	      newsData: null,
-	      sentimentData: null
+	      sentimentData: null,
+	      twitterData: null
 	    };
 
+	    _this.fetchTweets = _this.fetchTweets.bind(_this);
 	    return _this;
 	  }
 
 	  _createClass(SummaryComponent, [{
+	    key: 'fetchTweets',
+	    value: function fetchTweets() {
+	      var _this2 = this;
+
+	      var self = this;
+	      fetch('api/twitter', { method: 'GET' }).then(function (res) {
+	        return res.json();
+	      }).then(function (data) {
+	        console.log('SETTINGSTATE', data);
+	        _this2.setState({ twitterData: data }).bind(self);
+	      }).catch(function (err) {
+	        console.log(err);
+	      });
+	    }
+	  }, {
 	    key: 'componentWillMount',
 	    value: function componentWillMount() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      fetch('api/googletrends', { method: 'GET' }).then(function (res) {
 	        return res.json();
 	      }).then(function (data) {
-	        _this2.setState({ googleTrendsData: data });
+	        _this3.setState({ googleTrendsData: data });
 	        console.log('Google Trends Data ', data);
 	      }).catch(function (err) {
 	        console.log(err);
 	      });
 
 	      ////////NEWS VOLUME////////
-	      // fetch('api/news', {method: 'GET'})
-	      //   .then((res) => {
-	      //     return res.json();
-	      //   })
-	      //   .then((data) => {
-	      //     this.setState({newsData: data});
-	      //
-	      //   })
-	      //   .catch((err) => {
-	      //     console.log(err);
-	      //   });
-
-
-	      //////NEWS SENTIMENT////////
-	      fetch('api/news/sentiment', { method: 'GET' }).then(function (res) {
-	        console.log('fetch is working. Response:', res);
+	      fetch('api/news', { method: 'GET' }).then(function (res) {
 	        return res.json();
 	      }).then(function (data) {
-	        _this2.setState({ sentimentData: data });
+	        _this3.setState({ sentimentData: data });
 	      }).catch(function (err) {
 	        console.log(err);
 	      });
+
+	      //   fetch('api/twitter', {method: 'GET'})
+	      //     .then((res) => {
+	      //       return res.json();
+	      //     })
+	      //     .then((data) => {
+	      //       this.setState({twitterData: data});
+	      //     })
+	      //     .catch((err) => {
+	      //       console.log(err);
+	      //     });
+	      //
 	    }
+	    //
+	    // componentDidMount(){
+	    //   setInterval(this.fetchTweets, 10000);
+	    // }
+
+
 	  }, {
 	    key: 'render',
 	    value: function render() {
@@ -26955,10 +27007,10 @@
 	              { className: 'ta-center' },
 	              _react2.default.createElement('i', { className: 'fa fa-twitter', 'aria-hidden': 'true' }),
 	              'What\'s Tweeting'
-	            )
+	            ),
+	            _react2.default.createElement(_twitterLiveSummary2.default, { twitterData: this.props.twitterData, currentCompany: this.state.currentCompany })
 	          )
 	        ),
-	        _react2.default.createElement(_twitter2.default, { currentCompany: this.state.currentCompany }),
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'row' },
@@ -26996,6 +27048,11 @@
 	            { className: 'footer col-md-12' },
 	            'Footer text goes here'
 	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(_news2.default, { newsData: this.state.newsData })
 	        )
 	      );
 	    }
@@ -27065,7 +27122,7 @@
 	        keyword: this.props.googleTrendsData[index].keyword,
 	        x: 'date',
 	        y: 'volume',
-	        height: 300,
+	        height: 400,
 	        width: 600,
 	        color: color
 	      });
@@ -27414,15 +27471,18 @@
 	          _react2.default.createElement(_victory.VictoryLine, {
 	            data: this.props.data,
 	            x: this.props.x,
-	            y: this.props.y,
+	            y: function y(data) {
+	              return data.volume;
+	            },
 	            label: this.props.keyword,
-	            standalone: false,
 	            height: this.props.height,
+	            interpolation: 'cardinal',
 	            width: this.props.width,
+	            standalone: false,
 	            style: {
 	              data: {
 	                stroke: this.props.color,
-	                strokeWidth: 2
+	                strokeWidth: 3
 	              }
 	            }
 	          }),
@@ -58354,18 +58414,23 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SentimentTrends).call(this, props));
 
 	    _this.state = {
-	      data: _this.props.sentimentData
+	      data: _this.props.sentimentData,
+	      current: 'disney'
 	    };
+	    _this.handleClick = _this.handleClick.bind(_this);
 	    return _this;
 	  }
 
 	  _createClass(SentimentTrends, [{
+	    key: 'handleClick',
+	    value: function handleClick(event) {
+	      this.setState({ current: event.target.value });
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-
-	      console.log('props:', this.props.sentimentData);
-
 	      if (!this.props.sentimentData) {
+	        console.log(this.props.sentimentData);
 	        return _react2.default.createElement(
 	          'p',
 	          null,
@@ -58378,37 +58443,125 @@
 	        { className: 'sentiments' },
 	        _react2.default.createElement(
 	          'div',
+	          { className: 'row quote' },
+	          _react2.default.createElement(
+	            'quote',
+	            null,
+	            'In simulated trading experiments, average returns based on predictions from ',
+	            _react2.default.createElement(
+	              'span',
+	              { className: 'stand-out' },
+	              'news sentiment scores outperformed '
+	            ),
+	            'that of well-known trading experts.'
+	          ),
+	          ' ',
+	          _react2.default.createElement(
+	            'small',
+	            null,
+	            '~ Schumaker and Chen: A Quantitive Stock Prediction System Based on Financial News '
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
 	          { className: 'center-content' },
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'row' },
 	            _react2.default.createElement(
-	              'h2',
+	              'h4',
 	              null,
-	              'Consumer/Economic Sentiment - News in Past Two Months'
+	              _react2.default.createElement(
+	                'strong',
+	                null,
+	                ' 2016 News Headlines'
+	              )
 	            ),
 	            _react2.default.createElement(
 	              'div',
 	              { className: 'col-md-8' },
 	              _react2.default.createElement(
+	                'nav',
+	                { className: 'google-trends-nav' },
+	                _react2.default.createElement(
+	                  'button',
+	                  { onClick: this.handleClick, value: 'economic', className: 'btn btn-warning btn-rounded waves-effect' },
+	                  'Economic Indicators'
+	                ),
+	                _react2.default.createElement(
+	                  'button',
+	                  { onClick: this.handleClick, value: 'company', className: 'btn btn-warning btn-rounded waves-effect' },
+	                  'Company'
+	                )
+	              ),
+	              _react2.default.createElement(
 	                'div',
 	                { className: 'sentiment-chart' },
 	                _react2.default.createElement(_barchart2.default, {
 	                  data: this.props.sentimentData,
-	                  x: 'newsTopic',
+	                  label: 'keyword',
 	                  y: 'sentimentScore',
-	                  height: 300,
-	                  width: 500
+	                  x: 1,
+	                  height: 400,
+	                  width: 600
 	                })
 	              )
 	            ),
 	            _react2.default.createElement(
 	              'div',
-	              { className: 'google-summary col-md-4 card card-block' },
+	              { className: 'col-md-4' },
 	              _react2.default.createElement(
-	                'p',
-	                null,
-	                'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.'
+	                'div',
+	                { className: 'card' },
+	                _react2.default.createElement(
+	                  'h3',
+	                  { className: 'card-header red white-text' },
+	                  'Company Details'
+	                ),
+	                _react2.default.createElement(
+	                  'div',
+	                  { className: 'card-block' },
+	                  _react2.default.createElement('h4', { className: 'card-title' }),
+	                  _react2.default.createElement(
+	                    'p',
+	                    { className: 'card-text' },
+	                    _react2.default.createElement(
+	                      'ul',
+	                      null,
+	                      console.log("Im getting here"),
+	                      _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                          'strong',
+	                          null,
+	                          '# Articles: '
+	                        ),
+	                        this.props.sentimentData[9].hits + '\n'
+	                      ),
+	                      _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                          'strong',
+	                          null,
+	                          'Sentiment Score: '
+	                        ),
+	                        this.props.sentimentData[9].sentimentScore + '\n'
+	                      ),
+	                      _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                          'strong',
+	                          null,
+	                          'Headlines: '
+	                        ),
+	                        this.props.sentimentData[9].data[0].headline.print_headline + '\n'
+	                      )
+	                    )
+	                  )
+	                )
 	              )
 	            )
 	          )
@@ -58442,8 +58595,6 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -58456,67 +58607,88 @@
 	  function CentralAxis(props) {
 	    _classCallCheck(this, CentralAxis);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(CentralAxis).call(this, props));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CentralAxis).call(this, props));
+
+	    _this.state = {
+	      x: null
+	    };
+	    return _this;
 	  }
 
 	  _createClass(CentralAxis, [{
+	    key: 'sortedList',
+	    value: function sortedList(list) {
+	      var data = list.sort(function (a, b) {
+	        return a.sentimentScore > b.sentimentScore ? 1 : -1;
+	      });
+	      return data;
+	    }
+	  }, {
+	    key: 'filterByCompany',
+	    value: function filterByCompany() {
+	      var economicInd = ['car', 'unemployment', 'inflation', 'real estate', 'acquisition', 'restaurants', 'dow jones', 'economy', 'panic', 'consumer spending'];
+	      var data = this.props.data.filter(function (obj) {
+	        return economicInd.indexOf(obj.keyword) === -1;
+	      });
+	      return data;
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _React$createElement;
-
-	      return (
-	        // <div className='bar-chart'>
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'bar-chart' },
 	        _react2.default.createElement(
 	          'svg',
-	          { width: 500, height: 350 },
+	          { width: 650, height: 350 },
 	          _react2.default.createElement(
 	            _victory.VictoryChart,
-	            (_React$createElement = { horizontal: true,
-	              height: 350,
-	              width: 500,
-	              padding: 40,
-	              domain: { x: [-1.2, 1.2], y: [0, 7] },
-	              style: {
-	                data: { width: 50 },
-	                labels: { fontSize: 12 }
-	              }
-	            }, _defineProperty(_React$createElement, 'padding', {
-	              top: 20,
-	              bottom: 60,
-	              left: 20,
-	              right: 20
-	            }), _defineProperty(_React$createElement, 'domainPadding', { x: 15 }), _React$createElement),
+	            { horizontal: true,
+	              height: 375,
+	              width: 550,
+	              padding: {
+	                top: 40,
+	                bottom: 40,
+	                left: 40,
+	                right: 40
+	              },
+	              domainPadding: { x: 15 }
+
+	            },
 	            _react2.default.createElement(_victory.VictoryAxis, {
-	              label: 'Sentiment',
-	              orientation: 'bottom' }),
-	            _react2.default.createElement(_victory.VictoryAxis, {
-	              domain: { y: [0, 5] },
-	              tickValues: [-1, -0.75, -0.5, -.25, 0, .25, .50, .75, 1],
+
+	              orientation: 'bottom',
 	              style: {
-	                labels: { fontSize: 9 },
-	                grid: {
-	                  stroke: "grey",
-	                  strokeWidth: 1
-	                },
 	                axis: { stroke: "transparent" },
 	                ticks: { stroke: "transparent" }
-	              } }),
+	              }
+	            }),
 	            _react2.default.createElement(_victory.VictoryBar, { horizontal: true,
 	              style: {
 	                data: {
-	                  width: 17,
-	                  labels: { padding: 5, fontSize: 10 },
+	                  width: 20,
+	                  labels: { padding: 10, fontSize: 10 },
 	                  fill: function fill(data) {
 	                    return data.y > 0 ? "gold" : "blue";
 	                  }
 	                }
 	              },
-	              data: [{ x: 1, y: -0.51, label: 'EMPLOYMENT' }, { x: 2, y: -0.2, label: 'ECONOMY' }, { x: 3, y: -0.06, label: 'BUSINESS CONDITIONS' }, { x: 4, y: 0.13, label: 'GOLD' }, { x: 5, y: 0.46, label: 'CONSUMER SPENDING' }, { x: 6, y: 0.52, label: 'INCOME' }, { x: 7, y: 0.9, label: 'RESTAURANTS' }]
+
+	              data: this.sortedList(this.filterByCompany()).map(function (obj, idx) {
+	                if (obj.keyword !== 'panic') {
+	                  return {
+	                    x: 1 + idx,
+	                    y: +obj.sentimentScore,
+	                    label: obj.keyword.toUpperCase()
+	                  };
+	                } else return {
+	                  x: idx,
+	                  y: 0
+	                };
+	              })
 	            })
 	          )
 	        )
-	        // </div>
-
 	      );
 	    }
 	  }]);
@@ -58527,7 +58699,36 @@
 	exports.default = CentralAxis;
 
 /***/ },
-/* 243 */,
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NewsTrends = function NewsTrends(props) {
+
+	  return (
+	    // insert jsx here
+	    _react2.default.createElement(
+	      'h2',
+	      null,
+	      'News Chart'
+	    )
+	  );
+	};
+
+	exports.default = NewsTrends;
+
+/***/ },
 /* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -58559,83 +58760,177 @@
 	  function TwitterChart(props) {
 	    _classCallCheck(this, TwitterChart);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(TwitterChart).call(this, props));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TwitterChart).call(this, props));
+
+	    _this.state = {
+	      data: _this.props.twitterData,
+	      currentQuery: _this.props.currentCompany // may want to add adjustable time interval here
+	    };
+
+	    _this.clickHandler = _this.clickHandler.bind(_this);
+	    return _this;
 	  }
 
 	  _createClass(TwitterChart, [{
+	    key: 'clickHandler',
+	    value: function clickHandler(event) {
+	      this.setState({ currentQuery: event.target.value });
+	    }
+	  }, {
+	    key: 'getStyles',
+	    value: function getStyles() {
+	      return {
+	        parent: {
+	          boxSizing: "border-box",
+	          display: "block",
+	          width: "75%",
+	          height: "65%",
+	          padding: 20
+	        }
+	      };
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      // return (
+	      //     <section className="twitter-component">
+	      //       <div className="row">
+	      //         <div className="col-md-8">
+	      //           <VictoryChart />
+	      //         </div>
+	      //         <div className="trends col-md-4">
+	      //           <div className="row">
+	      //             <article className="orange col-sm-6">
+	      //               <span className="">796</span>
+	      //               <p>Tweets around the world</p>
+	      //             </article>
+	      //             <article className="red col-sm-6">
+	      //               <span className="">Sad</span>
+	      //               <p>Overall feeling</p>
+	      //             </article>
+	      //           </div>
+
+	      //           <div className="row">
+	      //             <article className="brown col-sm-6">
+	      //               <p>Some interesting content</p>
+	      //               <span className=""></span>
+	      //             </article>
+	      //             <article className="gray col-sm-6">
+	      //               <p>Some interesting content</p>
+	      //               <span className=""></span>
+	      //             </article>
+	      //           </div>
+	      //         </div>
+	      //       </div>
+	      //     </section>
+
+	      // );
+
+	      if (!this.props.twitterData || !this.props.currentCompany) {
+	        return _react2.default.createElement(
+	          'div',
+	          null,
+	          'Loading Twitter data for detail view component!'
+	        );
+	      }
+
+	      var currentQuery = this.state.currentQuery;
+	      var company = this.props.twitterData.filter(function (obj) {
+	        return obj.keyword === currentQuery ? true : false;
+	      })[0];
+
+	      var data = company.data.map(function (obj, index, array) {
+	        return { time: index,
+	          numTweets: obj.numTweets || 0,
+	          sentimentAverage: obj.sentimentAverage * 5 || 0 };
+	      });
+
+	      var styles = this.getStyles();
+	      var chart = _react2.default.createElement(
+	        _victory.VictoryChart,
+	        { animate: { duration: 5000 } },
+	        _react2.default.createElement(_victory.VictoryArea, {
+	          interpolation: 'cardinal',
+	          style: {
+	            data: { fill: "tomato" }
+	          },
+	          data: data.slice(-20),
+	          x: "time",
+	          y: "numTweets"
+	        }),
+	        _react2.default.createElement(_victory.VictoryLine, {
+	          interpolation: 'cardinal',
+	          style: {
+	            data: {
+	              stroke: "cornflowerblue",
+	              strokeWidth: 5
+	            },
+	            labels: { fontSize: 8 }
+	          },
+	          data: data.slice(-20),
+	          x: "time",
+	          y: "sentimentAverage",
+	          label: 'Sentiment Score',
+	          standalone: false,
+	          fill: "teal"
+	        })
+	      );
 
 	      return _react2.default.createElement(
-	        'section',
-	        { className: 'twitter-component' },
+	        'div',
+	        null,
 	        _react2.default.createElement(
 	          'div',
-	          { className: 'row' },
+	          null,
+	          'Twitter Detail Component'
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          chart
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
 	          _react2.default.createElement(
-	            'div',
-	            { className: 'col-md-8' },
-	            _react2.default.createElement(_victory.VictoryChart, null)
+	            'button',
+	            { onClick: this.clickHandler, value: 'nintendo' },
+	            'nintendo'
 	          ),
 	          _react2.default.createElement(
-	            'div',
-	            { className: 'trends col-md-4' },
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'row' },
-	              _react2.default.createElement(
-	                'article',
-	                { className: 'orange col-sm-6' },
-	                _react2.default.createElement(
-	                  'span',
-	                  { className: '' },
-	                  '796'
-	                ),
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'Tweets around the world'
-	                )
-	              ),
-	              _react2.default.createElement(
-	                'article',
-	                { className: 'red col-sm-6' },
-	                _react2.default.createElement(
-	                  'span',
-	                  { className: '' },
-	                  'Sad'
-	                ),
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'Overall feeling'
-	                )
-	              )
-	            ),
-	            _react2.default.createElement(
-	              'div',
-	              { className: 'row' },
-	              _react2.default.createElement(
-	                'article',
-	                { className: 'brown col-sm-6' },
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'Some interesting content'
-	                ),
-	                _react2.default.createElement('span', { className: '' })
-	              ),
-	              _react2.default.createElement(
-	                'article',
-	                { className: 'gray col-sm-6' },
-	                _react2.default.createElement(
-	                  'p',
-	                  null,
-	                  'Some interesting content'
-	                ),
-	                _react2.default.createElement('span', { className: '' })
-	              )
-	            )
+	            'button',
+	            { onClick: this.clickHandler, value: 'google' },
+	            'google'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'disney' },
+	            'disney'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'ford' },
+	            'ford'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'genentech' },
+	            'genentech'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'negative' },
+	            'negative'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'markets' },
+	            'markets'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'gold' },
+	            'gold'
 	          )
 	        )
 	      );
@@ -58648,8 +58943,359 @@
 	exports.default = TwitterChart;
 
 /***/ },
-/* 245 */,
-/* 246 */,
+/* 245 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _victory = __webpack_require__(240);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var TwitterLiveSummary = function (_Component) {
+	  _inherits(TwitterLiveSummary, _Component);
+
+	  function TwitterLiveSummary(props) {
+	    _classCallCheck(this, TwitterLiveSummary);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TwitterLiveSummary).call(this, props));
+
+	    _this.state = {
+	      intervals: -1 // units of time from tail to look back and display, decided by user
+	    };
+
+	    _this.clickHandler = _this.clickHandler.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(TwitterLiveSummary, [{
+	    key: 'clickHandler',
+	    value: function clickHandler(event) {
+	      this.setState({ intervals: +event.target.value });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+
+	      if (!this.props.twitterData) {
+	        return _react2.default.createElement(
+	          'div',
+	          null,
+	          'Loading Twitter Volume & Sentiment data...'
+	        );
+	      }
+	      // pull sentiment and volume data from x most recent entries, where x = intervals
+	      var intervals = this.state.intervals;
+	      var data = this.props.twitterData.map(function (obj, index, collection) {
+	        return { x: index + 1,
+
+	          volume: +(obj.data.slice(intervals).reduce(function (a, b) {
+	            return a + b.numTweets;
+	          }, 0) / -intervals) || 0,
+
+	          label: obj.keyword,
+
+	          sentiment: +(obj.data.slice(intervals).reduce(function (a, b) {
+	            return a + b.sentimentAverage;
+	          }, 0) / -intervals) || 0 };
+	      });
+
+	      var volumeChart = _react2.default.createElement(
+	        _victory.VictoryChart,
+	        {
+	          animate: { duration: 5000 } },
+	        _react2.default.createElement(_victory.VictoryAxis, {
+	          orientation: 'bottom',
+	          tickValues: data.map(function (obj) {
+	            return '';
+	          }),
+	          style: {
+	            ticks: { stroke: "transparent" }
+	          }
+	        }),
+	        _react2.default.createElement(_victory.VictoryAxis, { dependentAxis: true,
+	          label: "Tweets per Minute",
+	          style: {
+	            grid: {
+	              stroke: "grey",
+	              strokeWidth: 1
+	            },
+	            axis: { stroke: "transparent" },
+	            ticks: { stroke: "transparent" }
+	          } }),
+	        _react2.default.createElement(_victory.VictoryBar, {
+	          height: 300,
+	          style: {
+	            labels: { fontSize: 10 }
+	          },
+	          data: [{ x: 0.5, y: 0 }, { x: 1, y: data[0].volume, fill: "gold", label: data[0].label }, { x: 2, y: data[1].volume, fill: "orange", label: data[1].label }, { x: 3, y: data[2].volume, fill: "tomato", label: data[2].label }, { x: 4, y: data[3].volume, fill: "pink", label: data[3].label }, { x: 5, y: data[4].volume, fill: "magenta", label: data[4].label }, { x: 6, y: data[5].volume, fill: "purple", label: data[5].label }, { x: 7, y: data[6].volume, fill: "blue", label: data[6].label }, { x: 8, y: data[7].volume, fill: "teal", label: data[7].label }, { x: 8.5, y: 0 }]
+	        })
+	      );
+
+	      var sentimentChart = _react2.default.createElement(
+	        _victory.VictoryChart,
+	        { animate: { duration: 5000 } },
+	        _react2.default.createElement(_victory.VictoryAxis, {
+	          orientation: 'bottom',
+	          tickValues: data.map(function (obj) {
+	            return '';
+	          }),
+	          style: {
+	            axis: { stroke: "transparent" },
+	            ticks: { stroke: "transparent" }
+	          }
+	        }),
+	        _react2.default.createElement(_victory.VictoryAxis, { dependentAxis: true,
+	          tickValues: [-3, -2, -1, 0, 1, 2, 3],
+	          label: "Sentiment Score",
+	          style: {
+	            grid: {
+	              stroke: "grey",
+	              strokeWidth: 1
+	            },
+	            axis: { stroke: "transparent" },
+	            ticks: { stroke: "transparent" }
+	          } }),
+	        _react2.default.createElement(_victory.VictoryBar, {
+	          height: 300,
+	          style: {
+	            labels: { fontSize: 10 }
+	          },
+	          data: [{ x: .5, y: 0 }, { x: 1, y: data[0].sentiment, fill: "gold", label: data[0].label }, { x: 2, y: data[1].sentiment, fill: "orange", label: data[1].label }, { x: 3, y: data[2].sentiment, fill: "tomato", label: data[2].label }, { x: 4, y: data[3].sentiment, fill: "pink", label: data[3].label }, { x: 5, y: data[4].sentiment, fill: "magenta", label: data[4].label }, { x: 6, y: data[5].sentiment, fill: "purple", label: data[5].label }, { x: 7, y: data[6].sentiment, fill: "blue", label: data[6].label }, { x: 8, y: data[7].sentiment, fill: "teal", label: data[7].label }, { x: 8.5, y: 0 }]
+	        })
+	      );
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'twitter-live-summary' },
+	        console.log('RENDERING SOME STUFF'),
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          'TwitterLiveSummary Component (update choices once chron job enabled)'
+	        ),
+	        volumeChart,
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: '-1' },
+	            '1 Minute'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: '-3' },
+	            '3 Minutes'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: '-5' },
+	            '5 Minutes'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: '-10' },
+	            '10 Minutes'
+	          )
+	        ),
+	        sentimentChart
+	      );
+	    }
+	  }]);
+
+	  return TwitterLiveSummary;
+	}(_react.Component);
+
+	exports.default = TwitterLiveSummary;
+
+/***/ },
+/* 246 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// This component looks at the most recent time interval
+	// and renders an image based on + - neutral sentiment
+
+	// Twitter is feeling
+	//   {image}
+	// about {search} right this minute
+	var TwitterLive = function (_Component) {
+	  _inherits(TwitterLive, _Component);
+
+	  function TwitterLive(props) {
+	    _classCallCheck(this, TwitterLive);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TwitterLive).call(this, props));
+
+	    _this.state = {
+	      data: _this.props.twitterData, // score of most recent interval...use same data as twitter.component,,
+	      currentQuery: _this.props.currentCompany // search query or item chosen from dropdown
+	    };
+
+	    _this.clickHandler = _this.clickHandler.bind(_this);
+	    return _this;
+	  }
+
+	  _createClass(TwitterLive, [{
+	    key: 'clickHandler',
+	    value: function clickHandler(event) {
+	      this.setState({ currentQuery: event.target.value });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      if (!this.props.twitterData || !this.props.currentCompany) {
+	        return _react2.default.createElement(
+	          'div',
+	          null,
+	          'Loading Twitter Volume data...for Bullish/Bearish/Neutral component'
+	        );
+	      }
+
+	      var currentQuery = this.state.currentQuery;
+	      var company = this.props.twitterData.filter(function (obj) {
+	        return obj.keyword === currentQuery ? true : false;
+	      })[0];
+
+	      var sentiment = company.data[company.data.length - 1].sentimentAverage;
+	      var numTweets = company.data[company.data.length - 1].numTweets;
+
+	      // Idea: create smaller trailing graphics -- neutral Bullish BULLISH
+	      // var sentiment2 = company.data[company.data.length - 2].sentimentAverage;
+	      // var numTweets2 = company.data[company.data.length - 2].numTweets;
+	      // var sentiment3 = company.data[company.data.length - 3].sentimentAverage;
+	      // var numTweets3 = company.data[company.data.length - 3].numTweets;
+
+	      var graphic;
+	      if (sentiment > 0.5) {
+	        // bullish
+	        graphic = _react2.default.createElement('img', { src: 'http://bit.ly/2adciRq', className: 'img-responsive' });
+	      } else if (sentiment < -0.5) {
+	        // bearish
+	        graphic = _react2.default.createElement('img', { src: 'http://bit.ly/2a0Yese', className: 'img-responsive' });
+	      } else {
+	        // neutral
+	        graphic = _react2.default.createElement('img', { src: 'http://bit.ly/2a0hubG', className: 'img-responsive' });
+	      }
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'twitter-live' },
+	        _react2.default.createElement(
+	          'h2',
+	          null,
+	          'Twitter Live Snapshot (Style Me and get rid of hard coding)'
+	        ),
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          '--------------------------------------------------------'
+	        ),
+	        graphic,
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          '---',
+	          numTweets,
+	          ' tweets @ ',
+	          Math.round(sentiment * 100) / 100,
+	          ' average sentiment---'
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'nintendo' },
+	            'nintendo'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'google' },
+	            'google'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'disney' },
+	            'disney'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'ford' },
+	            'ford'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'genentech' },
+	            'genentech'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'negative' },
+	            'negative'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'markets' },
+	            'markets'
+	          ),
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.clickHandler, value: 'gold' },
+	            'gold'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'h4',
+	          null,
+	          '--------------FIX/STYLE ME-----------------------------'
+	        )
+	      );
+	    }
+	  }]);
+
+	  return TwitterLive;
+	}(_react.Component);
+
+	exports.default = TwitterLive;
+
+/***/ },
 /* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -58665,9 +59311,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _googletrends = __webpack_require__(238);
+	var _linechart = __webpack_require__(239);
 
-	var _googletrends2 = _interopRequireDefault(_googletrends);
+	var _linechart2 = _interopRequireDefault(_linechart);
 
 	var _sentiment = __webpack_require__(241);
 
@@ -58676,6 +59322,10 @@
 	var _twitter = __webpack_require__(244);
 
 	var _twitter2 = _interopRequireDefault(_twitter);
+
+	var _twitterLive = __webpack_require__(246);
+
+	var _twitterLive2 = _interopRequireDefault(_twitterLive);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -58697,6 +59347,13 @@
 	  _createClass(CompanyComponent, [{
 	    key: 'render',
 	    value: function render() {
+	      if (!this.props.companyGoogleTrendsData) {
+	        return _react2.default.createElement(
+	          'div',
+	          null,
+	          'Loading Google Trends data...'
+	        );
+	      }
 
 	      return _react2.default.createElement(
 	        'div',
@@ -58715,37 +59372,21 @@
 	            _react2.default.createElement(
 	              'h3',
 	              { className: 'ta-center' },
-	              _react2.default.createElement('i', { className: 'fa fa-twitter', 'aria-hidden': 'true' }),
-	              'What\'s Tweeting'
+	              this.props.currentCompany
 	            )
 	          )
 	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'section-headline col-md-12' },
-	            _react2.default.createElement(
-	              'h3',
-	              { className: 'ta-center' },
-	              'What\'s Being Searched'
-	            )
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'row' },
-	          _react2.default.createElement(
-	            'div',
-	            { className: 'section-headline col-md-12' },
-	            _react2.default.createElement(
-	              'h3',
-	              { className: 'ta-center' },
-	              'Market Sentiment'
-	            )
-	          )
-	        )
+	        _react2.default.createElement(_twitter2.default, { twitterData: this.props.twitterData, currentCompany: this.props.currentCompany }),
+	        _react2.default.createElement(_twitterLive2.default, { twitterData: this.props.twitterData, currentCompany: this.props.currentCompany }),
+	        _react2.default.createElement(_linechart2.default, {
+	          data: this.props.companyGoogleTrendsData.searchVolume,
+	          keyword: this.props.companyGoogleTrendsData.keyword,
+	          x: 'date',
+	          y: 'volume',
+	          height: 500,
+	          width: 800,
+	          color: 'red'
+	        })
 	      );
 	    }
 	  }]);
@@ -58857,11 +59498,6 @@
 	                  _reactBootstrap.MenuItem,
 	                  { onSelect: this.handleClick, eventKey: 'Google' },
 	                  'Google'
-	                ),
-	                _react2.default.createElement(
-	                  _reactBootstrap.MenuItem,
-	                  { onSelect: this.handleClick, eventKey: 'Genentech' },
-	                  'Genentech'
 	                )
 	              )
 	            )
